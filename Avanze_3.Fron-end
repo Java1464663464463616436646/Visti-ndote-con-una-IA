@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recomendaciones de Outfits</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .navbar {
+            background-color: #000;
+            overflow: hidden;
+            padding: 10px 0;
+        }
+        .navbar-inner {
+            width: 90%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+        }
+        .navbar-menu {
+            display: flex;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar-menu li {
+            margin-right: 20px;
+        }
+        .navbar-menu li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+            transition: color 0.3s;
+        }
+        .navbar-menu li a:hover {
+            color: #ff1f69;
+        }
+        .container {
+            width: 90%;
+            margin: 30px auto;
+            background-color: #fff;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #000;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .cta-button {
+            padding: 15px 30px;
+            background-color: #ff1f69;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 20px;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .cta-button:hover {
+            background-color: #d40054;
+        }
+        .image-container {
+            margin-top: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        .image-container img {
+            width: 100%;
+            border-radius: 8px;
+            transition: transform 0.5s;
+        }
+        .image-container:hover img {
+            transform: scale(1.1);
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .image-container:hover .overlay {
+            opacity: 1;
+        }
+        .overlay-text {
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-inner">
+            <a href="#" class="navbar-brand">MODA IA</a>
+            <ul class="navbar-menu">
+                <li><a href="#">Moda</a></li>
+                <li><a href="quienes_somos.html">Quiénes somos</a></li>
+                <li><a href="#">Celebridades</a></li>
+                <li><a href="#">Cultura</a></li>
+                <li><a href="#">Videos</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="container">
+        <h1>Bienvenido a Recomendaciones de Outfits</h1>
+        <p>Descubre tu estilo perfecto con nuestra inteligencia artificial especializada en moda.</p>
+        <a href="#" class="cta-button">Subir Imagen</a>
+        <div class="image-container">
+            <img src="imagenropa.jpeg" alt="AI Fashion Image">
+            <div class="overlay">
+                <div class="overlay-text">Ver más</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
