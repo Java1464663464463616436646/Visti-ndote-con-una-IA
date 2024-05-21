@@ -1,0 +1,108 @@
+from flask import Flask, render_template, request
+import tensorflow as tf
+import numpy as np
+import cv2
+from tensorflow.keras.preprocessing import image
+from PIL import Image
+import os
+
+app = Flask(__name__)
+
+# Definir las clases de Fashion MNIST (por simplicidad)
+class_names = ['Camiseta/top', 'Pantalón', 'Suéter', 'Vestido', 'Abrigo', 
+               'Sandalia', 'Camisa', 'Zapatilla', 'Bolso', 'Botines']
+
+# Cargar el modelo preentrenado MobileNetV2
+base_model = tf.keras.applications.MobileNetV2(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+model = tf.keras.Sequential([
+    base_model,
+    tf.keras.layers.GlobalAveragePooling2D(),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+model.compile(optimizer='adam',
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Función para cargar y preprocesar la imagen
+def load_and_preprocess_image(img_path):
+    img = Image.open(img_path).convert('RGB')
+    img = img.resize((224, 224))
+    img = np.array(img)
+    img = img / 255.0
+    img = np.expand_dims(img, axis=0)
+    return img
+
+# Función para predecir la prenda
+def predict_clothing(img_path):
+    img_array = load_and_preprocess_image(img_path)
+    predictions = model.predict(img_array)
+    predicted_class = np.argmax(predictions[0])
+    return class_names[predicted_class]
+
+# Función para determinar el color predominante ignorando colores casi blancos
+def get_dominant_color(img_path):
+    img = cv2.imread(img_path)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = cv2.resize(img, (50, 50), interpolation=cv2.INTER_AREA)
+    data = np.reshape(img, (-1, 3))
+    data = np.float32(data)
+
+    # Ignorar colores casi blancos
+    data = data[np.all(data < 240, axis=1)]
+
+    number_of_clusters = 5
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2)
+    _, _, centers = cv2.kmeans(data, number_of_clusters, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+    
+    centers = np.uint8(centers)
+    counts = np.bincount(np.argmin(np.linalg.norm(data - centers[:, np.newaxis], axis=2), axis=0))
+    dominant_color = centers[np.argmax(counts)]
+    
+    return dominant_color
+
+# Lista predefinida de nombres de colores
+color_names = {
+    (255, 0, 0): 'Rojo',
+    (0, 255, 0): 'Verde',
+    (0, 0, 255): 'Azul',
+    # Agrega más colores según sea necesario
+}
+
+# Función para encontrar el nombre del color más cercano
+def get_color_name(rgb_color):
+    closest_color = min(color_names.keys(), key=lambda color: np.linalg.norm(np.array(color) - np.array(rgb_color)))
+    return color_names[closest_color]
+
+# Función para manejar la selección de archivo y mostrar los resultados
+def select_image():
+    file_path = request.files['file'].filename
+    clothing = predict_clothing(file_path)
+    dominant_color_rgb = get_dominant_color(file_path)
+    dominant_color_name = get_color_name(dominant_color_rgb)
+    return f"Prenda identificada: {clothing}, Color dominante: {dominant_color_name} (RGB: {dominant_color_rgb})"
+
+@app.route('/')
+def index():
+    return render_template('por.html')
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return 'No se ha seleccionado ningún archivo'
+    file = request.files['file']
+    if file.filename == '':
+        return 'No se ha seleccionado ningún archivo'
+
+    # Guardar el archivo temporalmente y ejecutar la función Python
+    file_path = 'uploads/' + file.filename
+    file.save(file_path)
+    result = select_image()
+    
+    # Eliminar el archivo temporal
+    os.remove(file_path)
+
+    # Devolver los resultados
+    return result
+
+if __name__ == '__main__':
+    app.run(debug=True)
